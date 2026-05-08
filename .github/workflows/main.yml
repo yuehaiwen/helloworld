@@ -31,10 +31,21 @@ jobs:
       - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
       - run: cmake --build build --config Release
 
+      - name: Rename binary
+        run: |
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            mv build/hello build/hello-linux
+          elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+            mv build/hello build/hello-macos
+          elif [ "${{ matrix.os }}" = "windows-latest" ]; then
+            mv build/Release/hello.exe build/hello-windows.exe
+          fi
+        shell: bash
+
       - uses: actions/upload-artifact@v4
         with:
-          name: hello-${{ matrix.os }}
-          path: build/
+          name: binaries
+          path: build/hello-*
 
   release:
     runs-on: ubuntu-latest
@@ -43,13 +54,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/download-artifact@v4
-
-      - name: Release
-        uses: softprops/action-gh-release@v2
         with:
-          files: |
-            hello-ubuntu-latest/**
-            hello-windows-latest/**
-            hello-macos-latest/**
+          name: binaries
+          path: ./bin
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: ./bin/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
