@@ -1,9 +1,9 @@
-name: C++ Build & Package
+name: C++ Release
 
 on:
   push:
-    branches: [main]
-  pull_request:
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -13,34 +13,46 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Install CMake (Ubuntu)
+      - name: Install Ubuntu dependencies
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get update && sudo apt-get install -y cmake build-essential
 
-      - name: Install CMake (macOS)
+      - name: Install macOS dependencies
         if: matrix.os == 'macos-latest'
         run: brew install cmake
 
-      - name: Install CMake (Windows)
+      - name: Install Windows dependencies
         if: matrix.os == 'windows-latest'
         run: choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"' -y
 
-      - name: Create build directory
-        run: mkdir -p build
+      - run: cmake -E make_directory build
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build --config Release
 
-      - name: Configure CMake
-        run: cmake -S . -B build
-
-      - name: Build
-        run: cmake --build build --config Release
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: hello-${{ matrix.os }}
           path: |
             build/Release/hello
             build/Release/hello.exe
+            build/hello
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            hello-ubuntu-latest/hello
+            hello-windows-latest/hello.exe
+            hello-macos-latest/hello
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
