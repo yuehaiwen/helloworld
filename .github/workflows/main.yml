@@ -3,7 +3,7 @@ name: C++ Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   build:
@@ -15,9 +15,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          key: ${{ matrix.os }}-cache-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: ${{ matrix.os }}-cache-
+          path: |
+            # Ubuntu 缓存
+            /var/lib/apt/lists/
+            ~/.cache
+            # macOS 缓存
+            ~/Library/Caches/Homebrew
+            # Windows 缓存
+            C:\ProgramData\chocolatey\
+            C:\Users\runneradmin\AppData\Local\chocolatey
+            # CMake 构建缓存
+            build/
+
       - name: Install Ubuntu deps
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get update && sudo apt-get install -y cmake build-essential
+        run: sudo apt-get install -y cmake build-essential
 
       - name: Install macOS deps
         if: matrix.os == 'macos-latest'
