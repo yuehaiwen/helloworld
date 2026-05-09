@@ -1,0 +1,121 @@
+{
+  "version": 8,
+  "configurePresets": [
+    {
+      "name": "default-config",
+      "description": "Default configuration for all presets to inherit from",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_CXX_STANDARD": "17",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON"
+      }
+    },
+    {
+      "name": "ninja-debug",
+      "displayName": "Ninja Debug",
+      "description": "Debug build with Ninja generator",
+      "inherits": "default-config",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install/${presetName}"
+      }
+    },
+    {
+      "name": "ninja-release",
+      "displayName": "Ninja Release",
+      "description": "Release build with Ninja generator",
+      "inherits": "default-config",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install/${presetName}"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "ninja-build-debug",
+      "configurePreset": "ninja-debug",
+      "displayName": "",
+      "description": "",
+      "targets": [
+        "all"
+      ],
+      "configuration": "Debug"
+    },
+    {
+      "name": "ninja-build-release",
+      "configurePreset": "ninja-release",
+      "displayName": "",
+      "description": "",
+      "targets": [
+        "all"
+      ],
+      "configuration": "Release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "ninja-test-debug",
+      "displayName": "",
+      "description": "",
+      "configurePreset": "ninja-debug"
+    },
+    {
+      "name": "ninja-test-release",
+      "displayName": "",
+      "description": "",
+      "configurePreset": "ninja-release"
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "ninja-package-debug",
+      "displayName": "Package (Debug)",
+      "description": "Create ZIP package from Debug build",
+      "configurePreset": "ninja-debug",
+      "generators": ["ZIP", "TGZ"],
+      "configurations": ["Debug"],
+      "packageDirectory": "${sourceDir}/build/packages"
+    },
+    {
+      "name": "ninja-package-release",
+      "displayName": "Package (Release)",
+      "description": "Create ZIP package from Release build",
+      "configurePreset": "ninja-release",
+      "generators": ["ZIP", "TGZ"],
+      "configurations": ["Release"],
+      "packageDirectory": "${sourceDir}/build/packages"
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "ninja-workflow-debug",
+      "displayName": "",
+      "description": "",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "ninja-debug"
+        }
+      ]
+    },
+    {
+      "name": "ninja-workflow-release",
+      "displayName": "",
+      "description": "",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "ninja-release"
+        }
+      ]
+    }
+  ]
+}

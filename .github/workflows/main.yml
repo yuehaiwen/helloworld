@@ -21,15 +21,19 @@ jobs:
           key: ${{ matrix.os }}-cache-${{ hashFiles('**/CMakeLists.txt') }}
           restore-keys: ${{ matrix.os }}-cache-
           path: |
-            # Ubuntu 缓存
+            # Cache directories for package managers and build tools
+            # For Ubuntu (APT)
             /var/lib/apt/lists/
             ~/.cache
-            # macOS 缓存
+            
+            # For macOS (Homebrew)
             ~/Library/Caches/Homebrew
-            # Windows 缓存
+            
+            # For Windows (Chocolatey)
             C:\ProgramData\chocolatey\
             C:\Users\runneradmin\AppData\Local\chocolatey
-            # CMake 构建缓存
+            
+            # For CMake build cache
             build/
 
       - name: Install Ubuntu deps
